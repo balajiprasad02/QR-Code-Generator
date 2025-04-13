@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+git remote add origin https://github.com/balajiprasad02/QR-Code-Generator.git
+git branch -M main
+git push -u origin main<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -26,16 +28,29 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
 
     .container {
       background: white;
       padding: 2rem;
       border-radius: 1.5rem;
-      box-shadow: 0 10px 25px rgba(46, 26, 71, 0.2);
+      box-shadow: 0 20px 40px rgba(46, 26, 71, 0.2);
       text-align: center;
       max-width: 400px;
       width: 100%;
+      animation: fadeSlideIn 1s ease-out;
+    }
+
+    @keyframes fadeSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     h1 {
@@ -51,12 +66,13 @@
       border-radius: 0.75rem;
       margin-bottom: 1.5rem;
       font-size: 1rem;
-      transition: 0.3s;
+      transition: border-color 0.3s, transform 0.2s ease;
     }
 
     input[type="text"]:focus {
       border-color: var(--royal-amethyst);
       outline: none;
+      transform: scale(1.02);
     }
 
     button {
@@ -67,15 +83,28 @@
       border-radius: 0.75rem;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: all 0.3s ease;
+      margin: 0.25rem;
     }
 
     button:hover {
       background-color: var(--midnight-plum);
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(46, 26, 71, 0.15);
     }
 
     #qrcode {
       margin-top: 2rem;
+      animation: fadeInScale 0.5s ease-in-out forwards;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    @keyframes fadeInScale {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .footer {
@@ -90,17 +119,22 @@
     <h1>QR Code Generator</h1>
     <input type="text" id="text" placeholder="Enter text or URL" />
     <button onclick="generateQRCode()">Generate QR Code</button>
+    <button onclick="downloadQRCode()">Download QR Code</button>
     <div id="qrcode"></div>
     <div class="footer">by "Balaji Prasad"</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
+    let currentCanvas;
+
     function generateQRCode() {
       const qrContainer = document.getElementById('qrcode');
       const text = document.getElementById('text').value.trim();
 
       qrContainer.innerHTML = '';
+      qrContainer.style.opacity = 0;
+      currentCanvas = null;
 
       if (!text) {
         alert('Please enter text or a URL');
@@ -113,8 +147,24 @@
           alert('Failed to generate QR Code');
           return;
         }
+        currentCanvas = canvas;
         qrContainer.appendChild(canvas);
+        // Trigger animation manually
+        qrContainer.style.animation = 'none';
+        void qrContainer.offsetWidth; // Trigger reflow
+        qrContainer.style.animation = 'fadeInScale 0.5s ease-in-out forwards';
       });
+    }
+
+    function downloadQRCode() {
+      if (!currentCanvas) {
+        alert('Please generate a QR Code first!');
+        return;
+      }
+      const link = document.createElement('a');
+      link.href = currentCanvas.toDataURL('image/png');
+      link.download = 'qr-code.png';
+      link.click();
     }
   </script>
 </body>
